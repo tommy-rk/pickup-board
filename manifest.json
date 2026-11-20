@@ -1,0 +1,33 @@
+{
+  "name": "Pickup Board - Taxi Chauffeur",
+  "short_name": "Pickup Board",
+  "description": "Digital airport pickup sign for taxi, limousine & chauffeur drivers. Instant maximum-size name display without mid-word breaks, works 100% offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#1C1B1F",
+  "theme_color": "#FFD600",
+  "categories": ["travel", "utilities", "business"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

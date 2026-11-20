@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pickup Board – Digital Airport Pickup Sign for Taxi &amp; Chauffeur</title>
+  <meta name="description" content="Free digital airport pickup sign for taxi, limousine and chauffeur drivers. Maximum-size auto-fitting text without mid-word breaks, 5 high-contrast themes, custom company logo, 21 languages, works 100% offline on iPhone, iPad and Android.">
+  <meta name="keywords" content="pickup board, airport pickup sign, taxi name sign, chauffeur board, digital welcome sign, abholschild, flughafen abholschild, iPad pickup sign">
+  <meta name="theme-color" content="#FFD600" id="meta-theme-color">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pickup Board – Digital Airport Pickup Sign">
+  <meta property="og:description" content="Instant maximum-size passenger pickup sign for taxi &amp; chauffeur drivers. Works 100% offline on iPhone, iPad &amp; Android.">
+  <meta property="og:image" content="./icons/icon-512.png">
+
+  <!-- iOS / iPadOS Home Screen PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pickup Board">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+
+  <!-- Standard PWA Manifest & Favicon -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <!-- ======================================================================
+       MAIN INPUT VIEW
+       ====================================================================== -->
+  <div class="app-shell" id="input-view">
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <div class="brand">
+          <img src="./icons/icon-192.png" alt="Pickup Board Icon" class="brand-icon" width="40" height="40">
+          <div class="brand-text">
+            <h1 class="brand-title" data-i18n="app_title">Pickup Board</h1>
+            <p class="brand-subtitle" data-i18n="app_subtitle">Taxi &amp; Chauffeur</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button type="button" class="icon-btn" id="btn-share-link-top" aria-label="Share Direct Board Link" title="Share Direct Board Link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          </button>
+          <button type="button" class="icon-btn" id="btn-open-settings" aria-label="Settings" title="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Active Theme Quick Badge -->
+      <button type="button" class="theme-badge" id="theme-badge">
+        <span class="theme-badge-label" id="theme-badge-label">Theme: Airport Signal</span>
+        <span class="theme-badge-action" data-i18n="action_change">Change</span>
+      </button>
+
+      <!-- 1. Passenger Name Field -->
+      <div class="field-group">
+        <label for="input-passenger" class="field-label" data-i18n="passenger_label">Passenger Name (e.g. Peter Wolf)</label>
+        <div class="input-box">
+          <span class="input-leading-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </span>
+          <input
+            type="text"
+            id="input-passenger"
+            class="text-input"
+            autocomplete="off"
+            autocapitalize="words"
+            enterkeyhint="go"
+            placeholder="Enter name…"
+          >
+          <button type="button" class="clear-btn hidden" id="btn-clear-passenger" aria-label="Clear">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Sub-Details / Flight Number / Company -->
+      <div class="field-group">
+        <label for="input-subdetails" class="field-label" data-i18n="subdetails_label">Flight No. / Company / Note (optional)</label>
+        <div class="input-box">
+          <span class="input-leading-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+          </span>
+          <input
+            type="text"
+            id="input-subdetails"
+            class="text-input"
+            autocomplete="off"
+            enterkeyhint="go"
+            placeholder="e.g. LH 402 or Company…"
+          >
+          <button type="button" class="clear-btn hidden" id="btn-clear-subdetails" aria-label="Clear">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Line Layout Quick Chips -->
+      <div class="field-group">
+        <span class="field-label" data-i18n="line_layout_label">Line Layout:</span>
+        <div class="chip-row" id="main-line-chips"></div>
+      </div>
+
+      <!-- 4. Primary Always-Active Show Board CTA -->
+      <button type="button" class="cta-show-board" id="btn-show-board">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        <span data-i18n="btn_show_board">SHOW BOARD</span>
+      </button>
+
+      <!-- 5. Recent Passengers History -->
+      <section class="history-section hidden" id="history-section" aria-label="Recent Passengers">
+        <span class="field-label" data-i18n="recent_passengers">Recent Passengers</span>
+        <div class="history-list" id="history-list"></div>
+      </section>
+
+      <!-- Smart Install / iOS Home Screen / Android Play Store Card -->
+      <aside class="platform-card hidden" id="platform-card">
+        <p class="platform-card-text" id="platform-card-text"></p>
+        <button type="button" class="platform-card-btn hidden" id="btn-install-pwa" data-i18n="btn_install_pwa">Install App</button>
+        <a href="https://play.google.com/store/apps/details?id=de.kuczek.pickupboard" target="_blank" rel="noopener noreferrer" class="platform-card-btn hidden" id="link-play-store-card" data-i18n="btn_google_play">Google Play App</a>
+      </aside>
+
+      <footer class="footer-bar" id="main-footer-version">
+        Pickup Board • PWA v2.1.4
+      </footer>
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       FULLSCREEN PICKUP BOARD OVERLAY
+       ====================================================================== -->
+  <div class="board-view hidden" id="board-view" role="dialog" aria-modal="true" aria-label="Pickup Board">
+    <div class="board-frame" id="board-frame">
+      <div class="board-top" id="board-top"></div>
+      <div class="board-center" id="board-center">
+        <div class="auto-text" id="board-main-text"></div>
+      </div>
+      <div class="board-bottom" id="board-bottom"></div>
+    </div>
+    <div class="board-hint-pill" id="board-hint-pill" data-i18n="hint_double_tap_close">Double-tap to close</div>
+  </div>
+
+  <!-- ======================================================================
+       SETTINGS BOTTOM SHEET
+       ====================================================================== -->
+  <div class="sheet-overlay" id="settings-overlay" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+      <div class="sheet-header">
+        <h2 class="sheet-title" id="settings-title" data-i18n="settings_title">Settings</h2>
+        <button type="button" class="icon-btn" id="btn-close-settings" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <!-- 1. Keep Screen Awake (Wake Lock) -->
+        <label class="toggle-row" for="toggle-wakelock">
+          <div class="toggle-info">
+            <span class="toggle-icon" id="icon-wakelock" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
+            </span>
+            <div>
+              <div class="toggle-title" data-i18n="wake_lock_title">Keep Screen Awake</div>
+              <div class="toggle-desc" id="desc-wakelock">Active (Screen stays on while board is shown)</div>
+            </div>
+          </div>
+          <span class="switch">
+            <input type="checkbox" id="toggle-wakelock" checked>
+            <span class="switch-track"></span>
+          </span>
+        </label>
+
+        <div class="divider"></div>
+
+        <!-- 2. Night Mode -->
+        <label class="toggle-row" for="toggle-nightmode">
+          <div class="toggle-info">
+            <span class="toggle-icon" id="icon-nightmode" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+            </span>
+            <div>
+              <div class="toggle-title" data-i18n="night_mode_title">Night Mode</div>
+              <div class="toggle-desc" id="desc-nightmode">Off (App in light mode)</div>
+            </div>
+          </div>
+          <span class="switch">
+            <input type="checkbox" id="toggle-nightmode">
+            <span class="switch-track"></span>
+          </span>
+        </label>
+
+        <div class="divider"></div>
+
+        <!-- 3. Color & Contrast Theme -->
+        <div>
+          <p class="section-label" data-i18n="section_color_theme">Color &amp; Contrast Theme</p>
+          <div class="theme-list" id="settings-theme-list"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 4. Font Style -->
+        <div>
+          <p class="section-label" data-i18n="section_font">Font Style</p>
+          <div class="chip-row-scroll" id="settings-font-chips"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 5. Line Layout -->
+        <div>
+          <p class="section-label" data-i18n="section_line_layout">Line Layout</p>
+          <div class="chip-row-scroll" id="settings-line-chips"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 6. Logo / Icon + Custom Upload -->
+        <div>
+          <p class="section-label" data-i18n="section_logo">Logo / Icon</p>
+          <div class="chip-row-scroll" id="settings-logo-chips"></div>
+          <div style="height: 10px;"></div>
+          <input type="file" id="input-logo-file" accept="image/*" class="hidden">
+          <button type="button" class="outlined-btn" id="btn-upload-logo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            <span id="label-upload-logo">Upload Custom Company Logo</span>
+          </button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 7. Language Selector (all 21 languages) -->
+        <div>
+          <label for="select-language" class="section-label" style="display:block;" data-i18n="section_language">Language</label>
+          <select id="select-language" class="lang-select"></select>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 8. Share Magic Board Link / Share App / Google Play -->
+        <button type="button" class="outlined-btn" id="btn-share-magic-link">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+          <span data-i18n="btn_share_magic_link">Share Direct Board Link</span>
+        </button>
+
+        <button type="button" class="outlined-btn" id="btn-share-app">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          <span data-i18n="btn_share_app">Share App with Colleagues</span>
+        </button>
+
+        <a href="https://play.google.com/store/apps/details?id=de.kuczek.pickupboard" target="_blank" rel="noopener noreferrer" class="outlined-btn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67c-.19-.29-.54-.38-.84-.22-.3.16-.42.54-.26.85l1.84 3.18C3.85 10.97 2.13 13.5 2 16.5h20c-.13-3-1.85-5.53-4.4-7.02zM7 14.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm10 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
+          <span data-i18n="btn_google_play">Google Play App</span>
+        </a>
+
+        <div class="footer-bar" id="sheet-footer-version">
+          Pickup Board • Version 2.1.4 (PWA)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="./i18n.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
