@@ -3,6 +3,7 @@
 
   const APP_VERSION = '2.1.4';
   const STORAGE_KEY = 'pickupboard_pwa_state_v1';
+  const GA_MEASUREMENT_ID = 'G-YZ4YGHVGPW';
   const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=de.kuczek.pickupboard';
 
   // Exact 1:1 color & config definitions from Android BoardConfig.kt
@@ -125,7 +126,8 @@
     customLogoDataUrl: null,
     keepScreenAwake: true,
     history: [],
-    language: 'auto'
+    language: 'auto',
+    analyticsEnabled: true
   };
 
   let state = loadState();
@@ -191,6 +193,10 @@
     selectLanguage: document.getElementById('select-language'),
     btnShareMagicLink: document.getElementById('btn-share-magic-link'),
     btnShareApp: document.getElementById('btn-share-app'),
+    linkPlayStoreSettings: document.getElementById('link-play-store-settings'),
+    toggleAnalytics: document.getElementById('toggle-analytics'),
+    iconAnalytics: document.getElementById('icon-analytics'),
+    descAnalytics: document.getElementById('desc-analytics'),
     sheetFooterVersion: document.getElementById('sheet-footer-version'),
 
     toast: document.getElementById('toast')
@@ -481,6 +487,11 @@
     el.iconNightMode.classList.toggle('active', state.isNightMode);
     el.descNightMode.textContent = state.isNightMode ? t('night_mode_on') : t('night_mode_off');
 
+    const analyticsOn = state.analyticsEnabled !== false;
+    el.toggleAnalytics.checked = analyticsOn;
+    el.iconAnalytics.classList.toggle('active', analyticsOn);
+    el.descAnalytics.textContent = analyticsOn ? t('analytics_consent_on') : t('analytics_consent_off');
+
     renderThemeList();
     renderFontChips();
     renderLineChips(el.settingsLineChips);
@@ -532,6 +543,7 @@
       btn.addEventListener('click', () => {
         state.colorTheme = theme.id;
         saveState();
+        trackEvent('theme_selected', { color_theme: theme.id });
         renderUI();
       });
       el.settingsThemeList.appendChild(btn);
@@ -713,7 +725,7 @@
     return { isDemoPreview };
   }
 
-  function openBoard(fromPopstate = false) {
+  function openBoard(fromPopstate = false, viaMagicLink = false) {
     if (isSettingsOpen) closeSettings(true);
 
     const name = state.passengerName.trim();
@@ -723,6 +735,20 @@
       saveState();
       renderHistory();
     }
+
+    const wordCount = name ? name.split(/\s+/).filter(Boolean).length : 0;
+    trackEvent('board_shown', {
+      color_theme: state.colorTheme,
+      line_mode: state.lineMode,
+      font_choice: state.fontChoice,
+      logo_type: state.logoType,
+      night_mode: state.isNightMode ? 'on' : 'off',
+      has_sub_details: sub ? 'true' : 'false',
+      word_count: wordCount,
+      display_mode: isStandalonePwa() ? 'standalone' : 'browser',
+      via_magic_link: viaMagicLink ? 'true' : 'false'
+    });
+    trackScreenView('BoardScreen');
 
     // Dismiss mobile virtual keyboard
     if (document.activeElement && typeof document.activeElement.blur === 'function') {
@@ -776,6 +802,7 @@
 
     releaseWakeLock();
     exitBrowserFullscreen();
+    trackScreenView('InputScreen');
 
     if (!fromPopstate && history.state && history.state.pickupBoard === 'board') {
       try {
@@ -847,6 +874,7 @@
     isSettingsOpen = true;
     el.settingsOverlay.classList.add('open');
     el.settingsOverlay.setAttribute('aria-hidden', 'false');
+    trackScreenView('SettingsSheet');
     try {
       history.pushState({ pickupBoard: 'settings' }, '');
     } catch {
@@ -1019,6 +1047,41 @@
   }
 
   /* ========================================================================
+     Google Analytics 4 & Consent Mode v2 (G-YZ4YGHVGPW)
+     ======================================================================== */
+
+  function applyWebAnalyticsConsent(enabled) {
+    window[`ga-disable-${GA_MEASUREMENT_ID}`] = !enabled;
+    if (typeof window.gtag === 'function') {
+      const consent = enabled ? 'granted' : 'denied';
+      window.gtag('consent', 'update', {
+        analytics_storage: consent,
+        ad_storage: consent,
+        ad_user_data: consent,
+        ad_personalization: consent
+      });
+    }
+  }
+
+  function trackEvent(eventName, params = {}) {
+    if (state.analyticsEnabled === false) return;
+    if (typeof window.gtag === 'function') {
+      try {
+        window.gtag('event', eventName, params);
+      } catch {
+        // Ignore analytics errors offline
+      }
+    }
+  }
+
+  function trackScreenView(screenName) {
+    trackEvent('screen_view', {
+      screen_name: screenName,
+      app_name: 'PickupBoard PWA'
+    });
+  }
+
+  /* ========================================================================
      Helpers & Toast
      ======================================================================== */
 
@@ -1128,6 +1191,15 @@
         state.colorTheme = 'NIGHT_MODE';
       }
       saveState();
+      trackEvent('night_mode_toggled', { state: enabled ? 'on' : 'off' });
+      renderUI();
+    });
+
+    el.toggleAnalytics.addEventListener('change', (e) => {
+      const enabled = e.target.checked;
+      state.analyticsEnabled = enabled;
+      saveState();
+      applyWebAnalyticsConsent(enabled);
       renderUI();
     });
 
@@ -1150,6 +1222,7 @@
     const handleShareMagic = () => {
       const magicUrl = buildMagicBoardUrl();
       const name = state.passengerName.trim() || t('demo_passenger_name');
+      trackEvent('magic_link_shared', { color_theme: state.colorTheme });
       shareTextOrCopy(
         `${t('app_title')}: ${name}`,
         `${t('app_title')} – ${name}`,
@@ -1163,6 +1236,7 @@
 
     el.btnShareApp.addEventListener('click', () => {
       const webUrl = window.location.href.split('?')[0];
+      trackEvent('app_shared', { platform: 'pwa' });
       shareTextOrCopy(
         t('app_name'),
         `${t('app_title')} – ${t('app_subtitle')}`,
@@ -1170,6 +1244,16 @@
         t('magic_link_copied')
       );
     });
+
+    el.linkPlayStoreCard.addEventListener('click', () => {
+      trackEvent('google_play_clicked', { source: 'banner' });
+    });
+
+    if (el.linkPlayStoreSettings) {
+      el.linkPlayStoreSettings.addEventListener('click', () => {
+        trackEvent('google_play_clicked', { source: 'settings' });
+      });
+    }
 
     // Install PWA prompt (Chrome / Edge / Android)
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -1191,6 +1275,7 @@
 
     window.addEventListener('appinstalled', () => {
       deferredInstallPrompt = null;
+      trackEvent('pwa_installed', { platform: 'pwa' });
       updatePlatformCard();
     });
 
@@ -1259,7 +1344,9 @@
     registerServiceWorker();
 
     if (autoShowBoard) {
-      openBoard(true);
+      openBoard(true, true);
+    } else {
+      trackScreenView('InputScreen');
     }
   }
 
