@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const APP_VERSION = '2.1.4';
+  const APP_VERSION = '2.1.5';
   const STORAGE_KEY = 'pickupboard_pwa_state_v1';
   const GA_MEASUREMENT_ID = 'G-YZ4YGHVGPW';
   const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=de.kuczek.pickupboard';
@@ -138,6 +138,9 @@
   let toastTimeout = null;
   let deferredInstallPrompt = null;
   let lastTouchEndTime = 0;
+  let boardOpenedAtMs = null;
+  let activeBoardName = '';
+  let activeBoardSub = '';
 
   // Offscreen canvas for exact, ultra-fast text width measurement
   const measureCanvas = document.createElement('canvas');
@@ -736,15 +739,29 @@
       renderHistory();
     }
 
-    const wordCount = name ? name.split(/\s+/).filter(Boolean).length : 0;
+    const cleanName = name;
+    const cleanSub = sub;
+    const isDemoPreview = !cleanName && !cleanSub;
+    const wordCount = cleanName ? cleanName.split(/\s+/).filter(Boolean).length : 0;
+
+    activeBoardName = cleanName;
+    activeBoardSub = cleanSub;
+    boardOpenedAtMs = Date.now();
+
     trackEvent('board_shown', {
       color_theme: state.colorTheme,
       line_mode: state.lineMode,
       font_choice: state.fontChoice,
       logo_type: state.logoType,
       night_mode: state.isNightMode ? 'on' : 'off',
-      has_sub_details: sub ? 'true' : 'false',
+      has_sub_details: cleanSub ? 'true' : 'false',
       word_count: wordCount,
+      is_demo_preview: isDemoPreview ? 'true' : 'false',
+      main_text_type: classifyMainTextType(cleanName, isDemoPreview),
+      main_script: isDemoPreview ? 'none' : classifyScript(cleanName || cleanSub),
+      main_length_bucket: classifyLengthBucket(cleanName),
+      sub_text_type: classifySubTextType(cleanSub),
+      sub_length_bucket: classifyLengthBucket(cleanSub),
       display_mode: isStandalonePwa() ? 'standalone' : 'browser',
       via_magic_link: viaMagicLink ? 'true' : 'false'
     });
@@ -768,7 +785,7 @@
       }
     }
 
-    const { isDemoPreview } = renderBoardContent();
+    renderBoardContent();
 
     // Request Screen Wake Lock (keeps iPhone/iPad/Android screen on)
     if (state.keepScreenAwake) {
@@ -790,8 +807,31 @@
     }
   }
 
+  function flushBoardClosed(closeReason) {
+    if (boardOpenedAtMs === null) return;
+    const durationSeconds = Math.max(0, Math.floor((Date.now() - boardOpenedAtMs) / 1000));
+    boardOpenedAtMs = null;
+
+    const cleanName = activeBoardName.trim();
+    const cleanSub = activeBoardSub.trim();
+    const isDemoPreview = !cleanName && !cleanSub;
+
+    trackEvent('board_closed', {
+      duration_seconds: durationSeconds,
+      duration_bucket: classifyDurationBucket(durationSeconds),
+      close_reason: closeReason,
+      is_demo_preview: isDemoPreview ? 'true' : 'false',
+      color_theme: state.colorTheme,
+      line_mode: state.lineMode,
+      has_sub_details: cleanSub ? 'true' : 'false',
+      main_text_type: classifyMainTextType(cleanName, isDemoPreview),
+      sub_text_type: classifySubTextType(cleanSub)
+    });
+  }
+
   function closeBoard(fromPopstate = false) {
     if (!isBoardActive) return;
+    flushBoardClosed('user_close');
     isBoardActive = false;
     clearTimeout(hintTimeout);
 
@@ -1049,6 +1089,77 @@
   /* ========================================================================
      Google Analytics 4 & Consent Mode v2 (G-YZ4YGHVGPW)
      ======================================================================== */
+
+  const TITLE_PREFIX_REGEX = /^(mr|mrs|ms|miss|dr|prof|herr|frau|sir|lady|mme|monsieur|madame|sig|sr|sra)\.?(\s|$)/i;
+  const COMPANY_LIKE_REGEX = /\b(gmbh|ag|kg|ltd|llc|inc|corp|co|sarl|sas|spa|bv|nv|hotel|resort|vip|taxi|transfer|shuttle|limousine|limo|chauffeur|group|bank|airlines|airport|tours|travel|events)\b/i;
+  const FLIGHT_NUMBER_REGEX = /\b([a-z]{2}|[a-z]\d|\d[a-z])\s*-?\s*\d{1,4}[a-z]?\b/i;
+  const TIME_OR_GATE_REGEX = /\b(\d{1,2}:\d{2}|gate\s*[a-z0-9]+|terminal\s*[a-z0-9]+|t[1-5]\b|arrival|ankunft)\b/i;
+
+  function classifyLengthBucket(text) {
+    const len = (text || '').length;
+    if (len === 0) return '0';
+    if (len <= 8) return '1-8';
+    if (len <= 15) return '9-15';
+    if (len <= 25) return '16-25';
+    return '26+';
+  }
+
+  function classifyDurationBucket(seconds) {
+    if (seconds < 10) return '0-10s';
+    if (seconds < 60) return '10-60s';
+    if (seconds < 300) return '1-5m';
+    if (seconds < 600) return '5-10m';
+    if (seconds < 1200) return '10-20m';
+    if (seconds < 1800) return '20-30m';
+    return '30m+';
+  }
+
+  function classifyMainTextType(mainText, isDemoPreview) {
+    if (isDemoPreview || !mainText) return 'empty_demo';
+    if (TITLE_PREFIX_REGEX.test(mainText)) return 'title_prefix';
+    if (COMPANY_LIKE_REGEX.test(mainText)) return 'company_like';
+    const words = mainText.split(/\s+/).filter(Boolean).length;
+    if (words === 0) return 'empty_demo';
+    if (words === 1) return 'single_word';
+    if (words === 2) return 'two_words';
+    return 'three_plus_words';
+  }
+
+  function classifyScript(text) {
+    let latin = 0;
+    let arabic = 0;
+    let cyrillic = 0;
+    let cjk = 0;
+    let other = 0;
+    for (const ch of (text || '')) {
+      const code = ch.codePointAt(0);
+      if ((code >= 0x0041 && code <= 0x005A) || (code >= 0x0061 && code <= 0x007A) || (code >= 0x00C0 && code <= 0x024F) || (code >= 0x1E00 && code <= 0x1EFF)) {
+        latin++;
+      } else if ((code >= 0x0600 && code <= 0x06FF) || (code >= 0x0750 && code <= 0x077F) || (code >= 0x08A0 && code <= 0x08FF)) {
+        arabic++;
+      } else if (code >= 0x0400 && code <= 0x04FF) {
+        cyrillic++;
+      } else if ((code >= 0x4E00 && code <= 0x9FFF) || (code >= 0x3040 && code <= 0x30FF) || (code >= 0xAC00 && code <= 0xD7AF)) {
+        cjk++;
+      } else if (/\p{L}/u.test(ch)) {
+        other++;
+      }
+    }
+    const maxCount = Math.max(latin, arabic, cyrillic, cjk, other);
+    if (maxCount === 0) return 'none';
+    if (maxCount === latin) return 'latin';
+    if (maxCount === arabic) return 'arabic';
+    if (maxCount === cyrillic) return 'cyrillic';
+    if (maxCount === cjk) return 'cjk';
+    return 'other';
+  }
+
+  function classifySubTextType(subText) {
+    if (!subText) return 'none';
+    if (FLIGHT_NUMBER_REGEX.test(subText)) return 'flight_number';
+    if (TIME_OR_GATE_REGEX.test(subText)) return 'time_or_gate';
+    return 'text_note';
+  }
 
   function applyWebAnalyticsConsent(enabled) {
     window[`ga-disable-${GA_MEASUREMENT_ID}`] = !enabled;
@@ -1311,10 +1422,27 @@
       ro.observe(el.boardCenter);
     }
 
-    // Re-acquire Wake Lock if tab returns to foreground while board is active
+    // Track visible fullscreen duration & re-acquire Wake Lock across tab switches
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && isBoardActive && state.keepScreenAwake) {
-        acquireWakeLock();
+      if (document.visibilityState === 'hidden') {
+        if (isBoardActive) {
+          flushBoardClosed('background');
+        }
+      } else if (document.visibilityState === 'visible' && isBoardActive) {
+        if (boardOpenedAtMs === null) {
+          activeBoardName = state.passengerName.trim();
+          activeBoardSub = state.subDetails.trim();
+          boardOpenedAtMs = Date.now();
+        }
+        if (state.keepScreenAwake) {
+          acquireWakeLock();
+        }
+      }
+    });
+
+    window.addEventListener('pagehide', () => {
+      if (isBoardActive) {
+        flushBoardClosed('background');
       }
     });
   }
