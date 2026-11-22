@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const APP_VERSION = '2.1.5';
+  const APP_VERSION = '2.1.6';
   const STORAGE_KEY = 'pickupboard_pwa_state_v1';
   const GA_MEASUREMENT_ID = 'G-YZ4YGHVGPW';
   const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=de.kuczek.pickupboard';
@@ -1097,21 +1097,21 @@
 
   function classifyLengthBucket(text) {
     const len = (text || '').length;
-    if (len === 0) return '0';
-    if (len <= 8) return '1-8';
-    if (len <= 15) return '9-15';
+    if (len === 0) return '00';
+    if (len <= 8) return '01-08';
+    if (len <= 15) return '09-15';
     if (len <= 25) return '16-25';
     return '26+';
   }
 
   function classifyDurationBucket(seconds) {
-    if (seconds < 10) return '0-10s';
-    if (seconds < 60) return '10-60s';
-    if (seconds < 300) return '1-5m';
-    if (seconds < 600) return '5-10m';
-    if (seconds < 1200) return '10-20m';
-    if (seconds < 1800) return '20-30m';
-    return '30m+';
+    if (seconds < 10) return '00:00-00:10';
+    if (seconds < 60) return '00:10-01:00';
+    if (seconds < 300) return '01:00-05:00';
+    if (seconds < 600) return '05:00-10:00';
+    if (seconds < 1200) return '10:00-20:00';
+    if (seconds < 1800) return '20:00-30:00';
+    return '30:00+';
   }
 
   function classifyMainTextType(mainText, isDemoPreview) {
