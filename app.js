@@ -1,9 +1,10 @@
 (() => {
   'use strict';
 
-  const APP_VERSION = '2.1.6';
+  const APP_VERSION = '2.1.7';
   const STORAGE_KEY = 'pickupboard_pwa_state_v1';
   const GA_MEASUREMENT_ID = 'G-YZ4YGHVGPW';
+  const FEEDBACK_EMAIL = 'pickupboard@kuczek.de';
   const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=de.kuczek.pickupboard';
 
   // Exact 1:1 color & config definitions from Android BoardConfig.kt
@@ -196,6 +197,7 @@
     selectLanguage: document.getElementById('select-language'),
     btnShareMagicLink: document.getElementById('btn-share-magic-link'),
     btnShareApp: document.getElementById('btn-share-app'),
+    btnSendFeedback: document.getElementById('btn-send-feedback'),
     linkPlayStoreSettings: document.getElementById('link-play-store-settings'),
     toggleAnalytics: document.getElementById('toggle-analytics'),
     iconAnalytics: document.getElementById('icon-analytics'),
@@ -1355,6 +1357,18 @@
         t('magic_link_copied')
       );
     });
+
+    if (el.btnSendFeedback) {
+      el.btnSendFeedback.addEventListener('click', () => {
+        trackEvent('feedback_clicked', { platform: 'pwa' });
+        const subject = `Pickup Board PWA Feedback (v${APP_VERSION})`;
+        const mode = isStandalonePwa() ? 'standalone' : 'browser';
+        const body = `${t('feedback_email_hint')}\n\n\n---\nApp: Pickup Board PWA v${APP_VERSION} (${mode})\nLanguage: ${resolveLanguageCode()}\nPlatform: ${navigator.platform || 'web'}`;
+        const mailtoUrl = `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailtoUrl;
+        showToast(FEEDBACK_EMAIL);
+      });
+    }
 
     el.linkPlayStoreCard.addEventListener('click', () => {
       trackEvent('google_play_clicked', { source: 'banner' });

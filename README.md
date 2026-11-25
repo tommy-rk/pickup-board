@@ -53,3 +53,9 @@ https://tommy-rk.github.io/pickup-board/?name=Peter+Wolf&sub=LH+402&theme=airpor
 | `theme` | `airport`, `oled`, `daylight`, `night`, `chalkboard` | Optional color theme |
 | `lines` | `auto`, `1`, `2`, `3` | Optional line layout |
 | `show` | `1` | Opens fullscreen board immediately |
+
+---
+
+## Feedback & Contact
+
+Have a feature idea or found an issue? Send an email to **[pickupboard@kuczek.de](mailto:pickupboard@kuczek.de)** (or use the **Send Feedback & Ideas** button inside Settings).
