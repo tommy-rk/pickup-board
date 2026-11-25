@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pickupboard-pwa-v2.1.10';
+const CACHE_NAME = 'pickupboard-pwa-v2.1.7-r3';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
