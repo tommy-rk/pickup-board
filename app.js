@@ -1363,7 +1363,7 @@
         trackEvent('feedback_clicked', { platform: 'pwa' });
         const subject = `Pickup Board PWA Feedback (v${APP_VERSION})`;
         const mode = isStandalonePwa() ? 'standalone' : 'browser';
-        const body = `App: Pickup Board PWA v${APP_VERSION} (${mode})\nPlatform: ${navigator.platform || 'web'}\nLanguage: ${resolveLanguageCode()}\n---\n${t('feedback_email_hint')}\n\n`;
+        const body = `Platform: ${navigator.platform || 'web'} (${mode})\nLanguage: ${resolveLanguageCode()}\n---\n${t('feedback_email_hint')}\n\n`;
         const mailtoUrl = `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         window.location.href = mailtoUrl;
         showToast(FEEDBACK_EMAIL);
